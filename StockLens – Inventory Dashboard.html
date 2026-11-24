@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StockLens – Inventory Dashboard</title>
+<style>
+:root{--bg:#f3effb;--card:#fff;--text:#241a45;--muted:#7a6f99;--p:#7c4dff;--pd:#4527a0;--pl:#ede7f6;--line:#e6def7;--side1:#2b1566;--side2:#4527a0;--amber:#fff1cf;--amberT:#8a5a00;--red:#e5384f;--green:#2e9e5b;--term:#1a1033;--termT:#d9cff5;--input:#faf8ff;--sh:0 8px 24px rgba(69,39,160,.10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120d22;--card:#1c1535;--text:#eee9fb;--muted:#a99fc7;--line:#33285a;--pl:#2a1f55;--amber:#3b2f10;--amberT:#ffd98a;--term:#0d0820;--input:#150f2b;--sh:none}}
+:root[data-theme="dark"]{--bg:#120d22;--card:#1c1535;--text:#eee9fb;--muted:#a99fc7;--line:#33285a;--pl:#2a1f55;--amber:#3b2f10;--amberT:#ffd98a;--term:#0d0820;--input:#150f2b;--sh:none}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+aside{background:linear-gradient(170deg,var(--side1),var(--side2));color:#fff;padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.logo{display:flex;gap:10px;align-items:center;font-weight:800;font-size:20px;letter-spacing:.3px}
+.logo i{width:34px;height:34px;border-radius:10px;background:#fff;color:var(--pd);display:grid;place-items:center;font-style:normal;font-size:18px}
+nav{display:grid;gap:4px}
+nav a{color:#e4dcff;text-decoration:none;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600}
+nav a.on,nav a:hover{background:rgba(255,255,255,.16);color:#fff}
+.ds{margin-top:auto;background:rgba(255,255,255,.10);border-radius:14px;padding:12px;font-size:12.5px;display:grid;gap:8px}
+.ds h4{margin:0;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#cdbfff}
+.ds div{display:flex;justify-content:space-between}.ds b{font-size:14px}
+main{padding:22px;display:grid;gap:18px;align-content:start;min-width:0}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.top h1{margin:0;font-size:26px}.top p{margin:3px 0 0;color:var(--muted);font-size:14px}
+.kbd{border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:12px;color:var(--muted);background:var(--card)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--sh);border:1px solid var(--line)}
+.kpi span{font-size:12px;color:var(--muted);font-weight:600}.kpi b{display:block;font-size:26px;margin-top:6px}
+.kpi.hero{background:linear-gradient(135deg,#7c4dff,#4527a0);color:#fff;border:0}.kpi.hero span{color:#e0d4ff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--sh);border:1px solid var(--line);min-width:0}
+.card h2{margin:0 0 12px;font-size:15px}
+.donut{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ring{width:150px;height:150px;border-radius:50%;position:relative;flex:none}
+.ring::after{content:attr(data-c);position:absolute;inset:26px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center;font-weight:800;font-size:20px;white-space:pre-line;line-height:1.1}
+.leg{display:grid;gap:6px;font-size:13px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px}
+.low{display:grid;gap:10px}.lrow{font-size:13px}.lrow div{display:flex;justify-content:space-between;margin-bottom:4px}
+.track{height:8px;background:var(--pl);border-radius:8px;overflow:hidden}.fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#b388ff,#7c4dff)}
+.fill.z{background:var(--red)}
+.seg{display:inline-flex;background:var(--pl);border-radius:12px;padding:4px;gap:4px}
+.seg button{background:transparent;color:var(--muted);box-shadow:none;padding:8px 14px}
+.seg button.on{background:var(--card);color:var(--pd);box-shadow:0 2px 8px rgba(69,39,160,.18)}
+.sbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+input{font:inherit;color:var(--text);background:var(--input);border:1px solid var(--line);border-radius:12px;padding:11px 14px;outline:none}
+input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,77,255,.18)}
+#q{flex:1;min-width:180px}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:11px 18px;cursor:pointer;background:var(--p);color:#fff}
+button:hover{filter:brightness(.93)}.ghost{background:var(--pl);color:var(--pd)}.dng{background:var(--red)}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.8px;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr[data-id]{cursor:pointer}tr[data-id]:hover td{background:var(--pl)}
+tr.sel td{background:var(--pl)}tr.hit td:first-child{box-shadow:inset 4px 0 0 var(--p)}
+.r{text-align:right}.id{font-weight:800;color:var(--pd)}
+.chip{padding:3px 10px;border-radius:20px;background:var(--pl);color:var(--pd);font-size:12px;font-weight:700}
+.st{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.ok{background:rgba(46,158,91,.15);color:var(--green)}.lw{background:var(--amber);color:var(--amberT)}.ou{background:rgba(229,56,79,.15);color:var(--red)}
+#status{font-weight:700;font-size:14px;margin:12px 0 0;min-height:20px}
+.term{background:var(--term);color:var(--termT);border-radius:14px;padding:14px;font:13px/1.7 ui-monospace,Menlo,Consolas,monospace;min-height:120px}
+.term .h{color:#b388ff}.term .g{color:#7be3a1}.term .m{opacity:.6}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--text);padding:20px;width:min(380px,92vw)}
+dialog h2{margin:0 0 8px}dialog label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;font-weight:600}dialog input{width:100%}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+@media(max-width:900px){body{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:12px 16px}nav{display:flex}.ds{display:none}.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo"><i>◈</i>StockLens</div>
+  <nav><a class="on" href="#top">Dashboard</a><a href="#lab">Search lab</a><a href="#stock">Inventory</a></nav>
+  <div class="ds"><h4>Live structures</h4>
+    <div><span>ArrayList size</span><b id="dsL">0</b></div>
+    <div><span>HashMap size</span><b id="dsM">0</b></div>
+    <div><span>Last bin. steps</span><b id="dsS">–</b></div>
+  </div>
+</aside>
+
+<main id="top">
+  <div class="top">
+    <div><h1>Inventory Dashboard</h1><p>ArrayList • HashMap • Binary Search &nbsp;·&nbsp; press <span class="kbd">/</span> to search</p></div>
+  </div>
+
+  <section class="kpis">
+    <div class="kpi hero"><span>Total products</span><b id="kT">0</b></div>
+    <div class="kpi"><span>Stock value</span><b id="kV">0</b></div>
+    <div class="kpi"><span>Low stock</span><b id="kL">0</b></div>
+    <div class="kpi"><span>Categories</span><b id="kC">0</b></div>
+  </section>
+
+  <section class="grid2">
+    <div class="card"><h2>Units by category</h2>
+      <div class="donut"><div class="ring" id="ring"></div><div class="leg" id="leg"></div></div></div>
+    <div class="card"><h2>Needs restocking</h2><div class="low" id="low"></div></div>
+  </section>
+
+  <section class="card" id="lab">
+    <h2>Search lab</h2>
+    <div class="sbar">
+      <div class="seg"><button class="on" data-m="name">Name · Binary Search</button><button data-m="id">ID · HashMap</button></div>
+      <input id="q" placeholder="Try “lap” or “P1004”" autocomplete="off">
+      <button id="go">Search</button><button class="ghost" id="all">Reset</button>
+    </div>
+    <div class="grid2">
+      <div class="wrap" id="stock">
+        <table><thead><tr><th>ID</th><th>Product</th><th>Category</th><th class="r">Price</th><th class="r">Status</th></tr></thead><tbody id="rows"></tbody></table>
+        <div id="status"></div>
+        <div class="acts"><button id="add">+ Add product</button><button class="dng" id="del">Delete selected</button></div>
+      </div>
+      <div><div class="term" id="term"></div></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <h2>Add product</h2>
+  <label>Product ID</label><input id="fId" placeholder="P1013">
+  <label>Name</label><input id="fName">
+  <label>Category</label><input id="fCat">
+  <label>Price (Rs.)</label><input id="fPrice" type="number" min="0" step="0.01">
+  <label>Quantity</label><input id="fQty" type="number" min="0" step="1">
+  <div class="row"><button class="ghost" id="cancel">Cancel</button><button id="save">Add</button></div>
+</dialog>
+
+<script>
+const LOW=10, COL=['#7c4dff','#b388ff','#4527a0','#9575cd','#d1c4ff','#5e35b1','#c9b8ff'];
+const list=[], map=new Map();
+let mode='name', selected=null, shown=[], hits=new Set();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rs=n=>'Rs. '+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+
+function lowerBound(key){let lo=0,hi=list.length;const steps=[];
+  while(lo<hi){const mid=(lo+hi)>>>1,right=list[mid].name.toLowerCase()<key;steps.push({lo,hi,mid,right});if(right)lo=mid+1;else hi=mid;}
+  return{idx:lo,steps};}
+function addP(p){p.id=p.id.trim().toUpperCase();if(map.has(p.id))return false;map.set(p.id,p);list.splice(lowerBound(p.name.toLowerCase()).idx,0,p);return true;}
+function delP(id){const p=map.get(id);if(!p)return;map.delete(id);list.splice(list.indexOf(p),1);}
+
+[["P1001","Laptop","Electronics",55999,15],["P1002","Wireless Mouse","Accessories",699,48],["P1003","Keyboard","Accessories",1299,30],
+["P1004","Monitor 24 inch","Electronics",9499,8],["P1005","USB Pen Drive","Storage",549,120],["P1006","Headphones","Audio",1899,6],
+["P1007","Webcam","Accessories",2199,22],["P1008","Printer","Electronics",8999,4],["P1009","Power Bank","Mobile",1499,60],
+["P1010","Notebook","Stationery",60,300],["P1011","Pen Set","Stationery",120,0],["P1012","Smart Watch","Wearables",3499,14]]
+.forEach(([id,name,category,price,quantity])=>addP({id,name,category,price,quantity}));
+
+function dash(){
+  $('kT').textContent=list.length;
+  $('kV').textContent=rs(list.reduce((a,p)=>a+p.price*p.quantity,0));
+  const lows=list.filter(p=>p.quantity<=LOW).sort((a,b)=>a.quantity-b.quantity);
+  $('kL').textContent=lows.length;
+  const cats={};list.forEach(p=>cats[p.category]=(cats[p.category]||0)+p.quantity);
+  const names=Object.keys(cats),total=Object.values(cats).reduce((a,b)=>a+b,0)||1;
+  $('kC').textContent=names.length;
+  let acc=0;const stops=names.map((n,i)=>{const s=acc/total*100;acc+=cats[n];return `${COL[i%COL.length]} ${s}% ${acc/total*100}%`;});
+  const ring=$('ring');ring.style.background=`conic-gradient(${stops.join(',')||'var(--pl) 0 100%'})`;ring.dataset.c=total+'\nunits';
+  $('leg').innerHTML=names.map((n,i)=>`<div><i style="background:${COL[i%COL.length]}"></i>${esc(n)} · <b>${cats[n]}</b></div>`).join('');
+  $('low').innerHTML=lows.map(p=>`<div class="lrow"><div><span>${esc(p.name)}</span><b>${p.quantity===0?'Out of stock':p.quantity+' left'}</b></div><div class="track"><div class="fill ${p.quantity===0?'z':''}" style="width:${p.quantity===0?100:Math.max(8,p.quantity*10)}%"></div></div></div>`).join('')||'<span style="color:var(--muted)">All products are well stocked.</span>';
+  $('dsL').textContent=list.length;$('dsM').textContent=map.size;
+}
+function render(data,h){shown=data;hits=h||new Set();
+  $('rows').innerHTML=data.map(p=>{const s=p.quantity===0?['ou','Out of stock']:p.quantity<=LOW?['lw','Low · '+p.quantity]:['ok',p.quantity+' in stock'];
+    return `<tr data-id="${esc(p.id)}" class="${p.id===selected?'sel':''} ${hits.has(p.id)?'hit':''}"><td class="id">${esc(p.id)}</td><td>${esc(p.name)}</td><td><span class="chip">${esc(p.category)}</span></td><td class="r">${rs(p.price)}</td><td class="r"><span class="st ${s[0]}">${s[1]}</span></td></tr>`;}).join('')||'<tr><td colspan="5" style="color:var(--muted)">No products to show.</td></tr>';
+  dash();}
+function say(m,c){const s=$('status');s.textContent=m;s.style.color=c||'var(--muted)';}
+function term(h){$('term').innerHTML=h;}
+const idle='<span class="m">$ binary-search --trace</span><br><span class="m">Search by name to watch every step.</span>';
+
+function search(){
+  const t=$('q').value.trim();if(!t){say('Type something to search.','var(--red)');return;}
+  if(mode==='id'){const p=map.get(t.toUpperCase());
+    term(`<span class="h">$ hashmap.get("${esc(t.toUpperCase())}")</span><br><span class="m">hash(key) → bucket → value</span><br>${p?`<span class="g">✔ found “${esc(p.name)}” in 1 step · O(1)</span>`:'✘ key not present'}`);
+    $('dsS').textContent='1';
+    if(p){render([p],new Set([p.id]));say('HashMap: found in 1 step · O(1)','var(--green)');}else{render([]);say('ID not found.','var(--red)');}return;}
+  const key=t.toLowerCase(),{idx,steps}=lowerBound(key),res=[];
+  for(let i=idx;i<list.length&&list[i].name.toLowerCase().startsWith(key);i++)res.push(list[i]);
+  term(`<span class="h">$ binary-search "${esc(key)}"  (n=${list.length})</span><br>`+steps.map((s,i)=>`step ${i+1}  low=${s.lo} high=${s.hi} mid=${s.mid}  “${esc(list[s.mid].name)}” ${s.right?'&lt;':'≥'} key → ${s.right?'right':'left'}<br>`).join('')+`<span class="g">✔ stop at index ${idx} · ${res.length} match(es) · O(log n)</span>`);
+  $('dsS').textContent=steps.length;
+  render(res,new Set(res.map(p=>p.id)));
+  say(res.length?`Binary Search: ${res.length} match(es) in ${steps.length} steps · O(log n)`:`No product starts with “${t}” (${steps.length} steps)`,res.length?'var(--green)':'var(--red)');
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));$('q').placeholder=mode==='id'?'Try “P1004”':'Try “lap” or “key”';});
+$('go').onclick=search;
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')search();});
+document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();$('q').focus();}});
+$('all').onclick=()=>{$('q').value='';selected=null;render(list.slice());term(idle);say('Showing all products (ArrayList, sorted by name)');};
+$('rows').onclick=e=>{const tr=e.target.closest('tr[data-id]');if(!tr)return;selected=tr.dataset.id;render(shown,hits);};
+$('del').onclick=()=>{if(!selected){say('Select a product row first.','var(--red)');return;}const id=selected;delP(id);selected=null;render(list.slice());say('Deleted '+id+'.');};
+$('add').onclick=()=>{['fId','fName','fCat','fPrice','fQty'].forEach(i=>$(i).value='');$('dlg').showModal();};
+$('cancel').onclick=()=>$('dlg').close();
+$('save').onclick=()=>{const id=$('fId').value,name=$('fName').value.trim(),category=$('fCat').value.trim(),price=parseFloat($('fPrice').value),quantity=parseInt($('fQty').value,10);
+  $('dlg').close();
+  if(!id.trim()||!name||!category){say('ID, name and category cannot be empty.','var(--red)');return;}
+  if(isNaN(price)||isNaN(quantity)||price<0||quantity<0){say('Price and quantity must be valid, non-negative numbers.','var(--red)');return;}
+  if(!addP({id,name,category,price,quantity})){say('That ID already exists.','var(--red)');return;}
+  render(list.slice());say(`Added “${name}” at its sorted position.`,'var(--green)');};
+render(list.slice());term(idle);say('Showing all products (ArrayList, sorted by name)');
+</script>
+</body>
+</html>
